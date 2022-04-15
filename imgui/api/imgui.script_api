@@ -698,20 +698,8 @@
   - name: text_getsize
     type: function
 
-    parameters:
-      - name: text
-        type: string 
-      - name: fontsize
-        type: number
-      - name: fontid
-        type: number
-      - name: wrapwidth
-        type: number
-
     return:
-      - name: Xpixelsize 
-        type: number
-      - name: Ypixelsize 
+      - name: textpixelsize 
         type: number
 
 #*****************************************************************************************************
