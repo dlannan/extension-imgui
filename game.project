@@ -20,3 +20,8 @@ include_dirs = imgui
 game_binding = /imgui/bindings/imgui.input_bindingc
 use_accelerometer = 0
 
+[ios]
+bundle_identifier = com.kakutai.imgui
+
+[android]
+package = com.kakutai.imgui

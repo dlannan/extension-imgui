@@ -24,7 +24,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
-#include "imgui/stb_image.h"
+#include "stb/stb_image.h"
 
 #define MAX_HISTOGRAM_VALUES    1000 * 1024     
 #define MAX_IMAGE_NAME          256
