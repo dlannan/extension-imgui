@@ -1,10 +1,6 @@
-// myextension.cpp
-// Extension lib defines
+
 #define LIB_NAME "ImGui"
 #define MODULE_NAME "imgui"
-
-#include <stdlib.h>
-#include <vector>
 
 #include "imgui/imgui.h"
 #include "imgui/imconfig.h"
@@ -31,6 +27,8 @@
 
 #define TEXTBUFFER_SIZE         sizeof(char) * 1000 * 1024
 
+#include <stdlib.h>
+#include <vector>
 
 static bool g_imgui_NewFrame        = false;
 static char* g_imgui_TextBuffer     = 0;
