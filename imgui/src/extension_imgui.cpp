@@ -136,6 +136,48 @@ static int imgui_ImageLoadData(lua_State* L)
 }
 
 // Image handling needs to be smarter, but this will do for the time being.
+static int imgui_ImageLoadRawData(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    const char * filename = luaL_checkstring(L, 1);
+
+    // If its already in the vector, return the id
+    for(int i=0; i<images.size(); i++)
+    {
+        if(strcmp(images[i].name, filename) == 0) 
+        {
+            lua_pushinteger(L, i);
+            return 1;
+        }
+    }
+
+    ImgObject     iobj;
+    iobj.w = luaL_checkinteger(L, 2);
+    iobj.h = luaL_checkinteger(L, 3);
+    iobj.comp = 4;
+    iobj.data = (unsigned char *)luaL_checkstring(L, 4);
+    //dmLogError("Loaded Image: %s %d %d \n", filename, iobj.w, iobj.h);
+    
+    if(iobj.data == nullptr)
+    {
+        dmLogError("Error loading image: %s\n", filename);
+        lua_pushnil(L);
+        return 1;
+    }
+        
+    int idx = imgui_ImageInternalLoad(filename, &iobj);
+    if(idx < 0) 
+    {
+        lua_pushnil(L);
+        return 1;
+    }
+    
+    lua_pushinteger(L, idx);
+    return 1;
+}
+
+
+// Image handling needs to be smarter, but this will do for the time being.
 static int imgui_ImageLoad(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 1);
@@ -1432,6 +1474,7 @@ static const luaL_reg Module_methods[] =
 {
     {"image_load", imgui_ImageLoad},
     {"image_load_data", imgui_ImageLoadData},
+    {"image_load_rawdata", imgui_ImageLoadRawData},
     {"image_get", imgui_ImageGet},
     {"image_free", imgui_ImageFree},
     {"image_add", imgui_ImageAdd},
