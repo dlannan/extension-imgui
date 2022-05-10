@@ -141,28 +141,24 @@ static int imgui_ImageLoadRawData(lua_State* L)
     DM_LUA_STACK_CHECK(L, 1);
     const char * filename = luaL_checkstring(L, 1);
 
-    // If its already in the vector, return the id
-    for(int i=0; i<images.size(); i++)
-    {
-        if(strcmp(images[i].name, filename) == 0) 
-        {
-            lua_pushinteger(L, i);
-            return 1;
-        }
-    }
-
     ImgObject     iobj;
     iobj.w = luaL_checkinteger(L, 2);
     iobj.h = luaL_checkinteger(L, 3);
     iobj.comp = 4;
     iobj.data = (unsigned char *)luaL_checkstring(L, 4);
+    int forceupdate = luaL_checkinteger(L, 5);
     //dmLogError("Loaded Image: %s %d %d \n", filename, iobj.w, iobj.h);
-    
-    if(iobj.data == nullptr)
-    {
-        dmLogError("Error loading image: %s\n", filename);
-        lua_pushnil(L);
-        return 1;
+
+    if(forceupdate != 1) {
+        // If its already in the vector, return the id
+        for(int i=0; i<images.size(); i++)
+        {
+            if(strcmp(images[i].name, filename) == 0) 
+            {
+                lua_pushinteger(L, i);
+                return 1;
+            }
+        }
     }
         
     int idx = imgui_ImageInternalLoad(filename, &iobj);
