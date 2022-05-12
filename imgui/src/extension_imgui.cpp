@@ -145,27 +145,33 @@ static int imgui_ImageLoadRawData(lua_State* L)
     iobj.w = luaL_checkinteger(L, 2);
     iobj.h = luaL_checkinteger(L, 3);
     iobj.comp = 4;
-    iobj.data = (unsigned char *)luaL_checkstring(L, 4);
-    int forceupdate = luaL_checkinteger(L, 5);
+    unsigned char *data = (unsigned char *)luaL_checkstring(L, 4);
     //dmLogError("Loaded Image: %s %d %d \n", filename, iobj.w, iobj.h);
 
-    if(forceupdate != 1) {
-        // If its already in the vector, return the id
-        for(int i=0; i<images.size(); i++)
+    // If its already in the vector, copy in new data - dont rebuild!
+    bool found = false;
+    int idx = -1;
+    for(int i=0; i<images.size(); i++)
+    {
+        if(strcmp(images[i].name, filename) == 0) 
         {
-            if(strcmp(images[i].name, filename) == 0) 
-            {
-                lua_pushinteger(L, i);
-                return 1;
-            }
+            found = true;
+            assert(images[i].w == iobj.w);
+            assert(images[i].h == iobj.h);
+            assert(images[i].comp == iobj.comp);
+            memcpy(images[i].data, data, iobj.w * iobj.h * iobj.comp);
+            idx = i;
+            break;
         }
     }
-        
-    int idx = imgui_ImageInternalLoad(filename, &iobj);
-    if(idx < 0) 
-    {
-        lua_pushnil(L);
-        return 1;
+
+    if(!found) {
+        idx = imgui_ImageInternalLoad(filename, &iobj);
+        if(idx < 0) 
+        {
+            lua_pushnil(L);
+            return 1;
+        }
     }
     
     lua_pushinteger(L, idx);
