@@ -166,6 +166,7 @@ static int imgui_ImageLoadRawData(lua_State* L)
     }
 
     if(!found) {
+        iobj.data = data;
         idx = imgui_ImageInternalLoad(filename, &iobj);
         if(idx < 0) 
         {
