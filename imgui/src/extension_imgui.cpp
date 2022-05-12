@@ -68,6 +68,23 @@ static int imgui_ImageB64Decode(lua_State *L)
     return 1;
 }
 
+static int imgui_ImageInternalSetData(const char *filename, ImgObject *iobj)
+{
+    if(iobj->data == nullptr)
+    {
+        dmLogError("Error setting image data: %s\n", filename);
+        return -1;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, iobj->tid);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iobj->w, iobj->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, iobj->data);
+
+    return images.size()-1;
+}  
 
 static int imgui_ImageInternalLoad(const char *filename, ImgObject *iobj)
 {
@@ -83,15 +100,10 @@ static int imgui_ImageInternalLoad(const char *filename, ImgObject *iobj)
     strcpy(iobj->name, filename);
     images.push_back(*iobj);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iobj->w, iobj->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, iobj->data);
+    imgui_ImageInternalSetData( filename, iobj );
 
     return images.size()-1;
 }    
-
 
 // Image handling needs to be smarter, but this will do for the time being.
 static int imgui_ImageLoadData(lua_State* L)
@@ -159,7 +171,8 @@ static int imgui_ImageLoadRawData(lua_State* L)
             assert(images[i].w == iobj.w);
             assert(images[i].h == iobj.h);
             assert(images[i].comp == iobj.comp);
-            memcpy(images[i].data, data, iobj.w * iobj.h * iobj.comp);
+            images[i].data = data;
+            imgui_ImageInternalSetData(filename, &images[i]);
             idx = i;
             break;
         }
